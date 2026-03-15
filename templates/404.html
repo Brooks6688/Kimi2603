@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}页面未找到 - 雪茄数据库{% endblock %}
+
+{% block content %}
+<div class="empty-state" style="padding: 5rem 2rem;">
+    <div class="empty-state-icon">😕</div>
+    <h1 style="font-size: 2rem; margin-bottom: 1rem;">404 - 页面未找到</h1>
+    <p style="margin-bottom: 2rem;">抱歉，您访问的页面不存在或已被移除。</p>
+    
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="/" class="btn btn-primary">🏠 返回首页</a>
+        <a href="/cigars" class="btn btn-secondary">📚 浏览雪茄</a>
+    </div>
+</div>
+{% endblock %}

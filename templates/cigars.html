@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}雪茄库 - 雪茄数据库{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="page-title">📚 雪茄库</h1>
+    
+    <!-- 筛选栏 -->
+    <form method="GET" action="/cigars" class="filter-bar">
+        <div class="filter-group">
+            <label>产地:</label>
+            <select name="origin" class="filter-select">
+                <option value="">全部产地</option>
+                {% for o in origins %}
+                <option value="{{ o.origin }}" {% if selected_origin == o.origin %}selected{% endif %}>{{ o.origin }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>浓度:</label>
+            <select name="strength" class="filter-select">
+                <option value="">全部浓度</option>
+                {% for s in strengths %}
+                <option value="{{ s.strength }}" {% if selected_strength == s.strength %}selected{% endif %}>{{ s.strength }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label>排序:</label>
+            <select name="sort" class="filter-select">
+                <option value="rating" {% if sort == 'rating' %}selected{% endif %}>按评分</option>
+                <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>价格从低到高</option>
+                <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>价格从高到低</option>
+                <option value="name" {% if sort == 'name' %}selected{% endif %}>按名称</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <input type="text" name="search" value="{{ search }}" placeholder="搜索品牌/型号/风味..." class="search-input" style="width: 200px;">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">筛选</button>
+        <a href="/cigars" class="btn btn-secondary">重置</a>
+    </form>
+    
+    <!-- 结果统计 -->
+    <p style="margin-bottom: 1.5rem; color: #666;">
+        共找到 <strong>{{ cigars|length }}</strong> 款雪茄
+        {% if selected_origin %} · 产地: {{ selected_origin }}{% endif %}
+        {% if selected_strength %} · 浓度: {{ selected_strength }}{% endif %}
+        {% if search %} · 搜索: "{{ search }}"{% endif %}
+    </p>
+</div>
+
+<!-- 雪茄网格 -->
+{% if cigars %}
+<div class="grid">
+    {% for cigar in cigars %}
+    <a href="/cigar/{{ cigar.id }}" class="cigar-card">
+        <div class="cigar-header">
+            <span class="cigar-brand">{{ cigar.brand }}</span>
+            {% if cigar.expert_rating %}
+            <span class="badge badge-rating">{{ cigar.expert_rating|int }}分</span>
+            {% endif %}
+        </div>
+        
+        <div class="cigar-name">{{ cigar.name }}</div>
+        
+        <div class="cigar-meta">
+            {% if cigar.origin %}
+            <span>📍 {{ cigar.origin }}</span>
+            {% endif %}
+            {% if cigar.strength %}
+            <span>💨 {{ cigar.strength }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="cigar-meta">
+            {% if cigar.length or cigar.ring_gauge %}
+            <span>📏 {{ cigar.length or '' }}{% if cigar.length and cigar.ring_gauge %} x {% endif %}{{ cigar.ring_gauge }}{% if cigar.ring_gauge %}环{% endif %}</span>
+            {% endif %}
+            {% if cigar.price_per_stick %}
+            <span>💵 ${{ cigar.price_per_stick|int }}</span>
+            {% endif %}
+        </div>
+        
+        {% if cigar.primary_flavors %}
+        <div class="flavor-tags">
+            {% for flavor in cigar.primary_flavors.split(',')[:4] %}
+            <span class="flavor-tag">{{ flavor.strip() }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if cigar.expert_source %}
+        <div style="margin-top: 0.75rem; font-size: 0.75rem; color: #888;">
+            来源: {{ cigar.expert_source[:20] }}{% if cigar.expert_source|length > 20 %}...{% endif %}
+        </div>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">🔍</div>
+    <h3>没有找到匹配的雪茄</h3>
+    <p>尝试调整筛选条件或搜索关键词</p>
+    <a href="/cigars" class="btn btn-primary" style="margin-top: 1rem;">查看全部</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 雪茄数据库{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="page-title">🚬 欢迎来到雪茄数据库</h1>
+    <p style="color: #666; margin-bottom: 1.5rem;">
+        基于 Cigar Aficionado、Halfwheel、Cigar Scanner、Cigar Sense 等多源数据构建的专业雪茄资料库。
+        <br>
+        共收录 <strong>{{ total }}</strong> 款精选雪茄，涵盖 <strong>{{ origins|length }}</strong> 大产地。
+    </p>
+    
+    <div class="search-box">
+        <input type="text" class="search-input" placeholder="搜索品牌、型号、风味..." id="homeSearch">
+        <button class="btn btn-primary" onclick="doSearch()">🔍 搜索</button>
+    </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="grid" style="margin-bottom: 2rem;">
+    <div class="stat-box">
+        <div class="stat-number">{{ total }}</div>
+        <div class="stat-label">雪茄总数</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">{{ origins|length }}</div>
+        <div class="stat-label">产地数量</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">49</div>
+        <div class="stat-label">品牌数量</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-number">4</div>
+        <div class="stat-label">数据来源</div>
+    </div>
+</div>
+
+<div class="grid">
+    <!-- 产地分布 -->
+    <div class="card">
+        <div class="card-title">📍 产地分布</div>
+        {% for origin in origins %}
+        <div style="margin-bottom: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <span>{{ origin.origin }}</span>
+                <span style="font-weight: 600;">{{ origin.count }} 款</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ (origin.count / total * 100)|round }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 浓度分布 -->
+    <div class="card">
+        <div class="card-title">💨 浓度分布</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for s in strengths %}
+            <a href="/cigars?strength={{ s.strength }}" class="badge badge-strength" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                {{ s.strength }} ({{ s.count }})
+            </a>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1.5rem;">
+            <div class="card-title">📚 数据来源</div>
+            <ul style="list-style: none;">
+                {% for source in sources %}
+                <li style="padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0;">
+                    {{ source.expert_source or '其他' }} <span style="float: right; font-weight: 600;">{{ source.count }} 款</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 顶级评分 -->
+    <div class="card">
+        <div class="card-title">🏆 顶级评分 TOP 10</div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for cigar in top_cigars %}
+            <a href="/cigar/{{ cigar.id }}" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: #f8f8f8; border-radius: 8px; transition: background 0.2s;">
+                    <span style="font-size: 1.5rem; font-weight: bold; color: #8B4513; min-width: 2.5rem;">#{{ loop.index }}</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">{{ cigar.brand }} {{ cigar.name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">{{ cigar.origin or '未知产地' }}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="badge badge-rating">{{ cigar.expert_rating|int }}分</span>
+                        {% if cigar.price_per_stick %}
+                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">${{ cigar.price_per_stick|int }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="/recommend?type=top_rated" class="btn btn-primary">查看全部</a>
+        </div>
+    </div>
+    
+    <!-- 性价比之选 -->
+    <div class="card">
+        <div class="card-title">💰 性价比之选 TOP 10</div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% for cigar in value_cigars %}
+            <a href="/cigar/{{ cigar.id }}" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: #f8f8f8; border-radius: 8px;">
+                    <span style="font-size: 1.5rem; font-weight: bold; color: #4CAF50; min-width: 2.5rem;">#{{ loop.index }}</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">{{ cigar.brand }} {{ cigar.name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">{{ cigar.expert_rating|int }}分 / ${{ cigar.price_per_stick|int }}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="badge" style="background: #4CAF50;">{{ cigar.value_ratio|round(2) }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="/recommend?type=value" class="btn btn-primary">查看全部</a>
+        </div>
+    </div>
+</div>
+
+<!-- 快速导航 -->
+<div class="card" style="margin-top: 2rem;">
+    <div class="card-title">🚀 快速导航</div>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="/cigars?origin=古巴" class="btn btn-primary">🇨🇺 古巴雪茄</a>
+        <a href="/cigars?origin=尼加拉瓜" class="btn btn-primary">🇳🇮 尼加拉瓜雪茄</a>
+        <a href="/cigars?strength=Full" class="btn btn-secondary">🔥 浓郁型</a>
+        <a href="/cigars?strength=Medium" class="btn btn-secondary">⚖️ 中等浓度</a>
+        <a href="/recommend?type=beginner" class="btn btn-secondary">👶 新手推荐</a>
+        <a href="/recommend?type=full_body" class="btn btn-secondary">💪 重口味</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function doSearch() {
+    const query = document.getElementById('homeSearch').value;
+    if (query) {
+        window.location.href = '/search?q=' + encodeURIComponent(query);
+    }
+}
+
+document.getElementById('homeSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        doSearch();
+    }
+});
+</script>
+{% endblock %}

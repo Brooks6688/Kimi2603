@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}推荐 - 雪茄数据库{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="page-title">🎯 雪茄推荐</h1>
+    
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+        <a href="/recommend?type=value" class="btn {% if rec_type == 'value' %}btn-primary{% else %}btn-secondary{% endif %}">💰 性价比</a>
+        <a href="/recommend?type=top_rated" class="btn {% if rec_type == 'top_rated' %}btn-primary{% else %}btn-secondary{% endif %}">🏆 顶级评分</a>
+        <a href="/recommend?type=beginner" class="btn {% if rec_type == 'beginner' %}btn-primary{% else %}btn-secondary{% endif %}">👶 新手入门</a>
+        <a href="/recommend?type=full_body" class="btn {% if rec_type == 'full_body' %}btn-primary{% else %}btn-secondary{% endif %}">💪 浓郁型</a>
+        <a href="/recommend?type=cuba" class="btn {% if rec_type == 'cuba' %}btn-primary{% else %}btn-secondary{% endif %}">🇨🇺 古巴雪茄</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1.5rem;">{{ title }}</h2>
+    
+    {% if rec_type == 'value' %}
+    <p style="color: #666; margin-bottom: 1.5rem;">
+        性价比 = 专家评分 / 价格，数值越高代表"花更少的钱获得更好的体验"
+    </p>
+    {% endif %}
+    
+    {% if recommendations %}
+    <div class="grid">
+        {% for cigar in recommendations %}
+        <a href="/cigar/{{ cigar.id }}" class="cigar-card">
+            <div class="cigar-header">
+                <span class="cigar-brand">{{ cigar.brand }}</span>
+                <span style="display: flex; gap: 0.5rem;">
+                    {% if cigar.expert_rating %}
+                    <span class="badge badge-rating">{{ cigar.expert_rating|int }}分</span>
+                    {% endif %}
+                    {% if rec_type == 'value' and cigar.value_ratio %}
+                    <span class="badge" style="background: #4CAF50;">{{ cigar.value_ratio|round(2) }}</span>
+                    {% endif %}
+                </span>
+            </div>
+            
+            <div class="cigar-name">{{ cigar.name }}</div>
+            
+            <div class="cigar-meta">
+                {% if cigar.origin %}
+                <span>📍 {{ cigar.origin }}</span>
+                {% endif %}
+                {% if cigar.strength %}
+                <span>💨 {{ cigar.strength }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="cigar-meta">
+                {% if cigar.price_per_stick %}
+                <span>💵 ${{ cigar.price_per_stick|int }}</span>
+                {% endif %}
+                {% if cigar.expert_source %}
+                <span>📚 {{ cigar.expert_source[:15] }}{% if cigar.expert_source|length > 15 %}...{% endif %}</span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h3>暂无推荐数据</h3>
+    </div>
+    {% endif %}</div>
+
+<!-- 其他推荐类别 -->
+<div class="grid" style="margin-top: 2rem;">
+    <div class="card">
+        <div class="card-title">🍷 按饮品搭配</div>
+        <p style="color: #666; margin-bottom: 1rem;">选择饮品，找到最佳搭配的雪茄</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <a href="/search?q=威士忌" class="btn btn-secondary">🥃 威士忌</a>
+            <a href="/search?q=干邑" class="btn btn-secondary">🍷 干邑/白兰地</a>
+            <a href="/search?q=咖啡" class="btn btn-secondary">☕ 咖啡</a>
+            <a href="/search?q=朗姆酒" class="btn btn-secondary">🍹 朗姆酒</a>
+            <a href="/search?q=波本" class="btn btn-secondary">🥃 波本威士忌</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-title">⏰ 按时段选择</div>
+        
+        <p style="color: #666; margin-bottom: 1rem;">不同时段适合不同浓度的雪茄</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <a href="/cigars?strength=Mild" class="btn btn-secondary">🌅 早晨 - 轻度</a>
+            <a href="/cigars?strength=Medium" class="btn btn-secondary">☀️ 下午 - 中等</a>
+            <a href="/cigars?strength=Medium-Full" class="btn btn-secondary">🌆 傍晚 - 中浓</a>
+            <a href="/cigars?strength=Full" class="btn btn-secondary">🌙 晚上 - 浓郁</a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-title">💰 按预算选择</div>
+        
+        <p style="color: #666; margin-bottom: 1rem;">不同价位的优质选择</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <a href="/cigars?sort=price_low" class="btn btn-secondary">💵 低价优先 (<$10)</a>
+            <a href="/cigars?sort=price_low&search=$10" class="btn btn-secondary">💵💵 中档 ($10-20)</a>
+            <a href="/cigars?sort=price_high" class="btn btn-secondary">💎 高端 (>$20)</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

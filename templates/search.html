@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}搜索 - 雪茄数据库{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 class="page-title">🔍 搜索雪茄</h1>
+    
+    <form method="GET" action="/search" class="search-box">
+        <input type="text" name="q" value="{{ query }}" placeholder="搜索品牌、型号、产地、风味..." class="search-input" autofocus>
+        <button type="submit" class="btn btn-primary">搜索</button>
+    </form>
+    
+    <p style="color: #666;">
+        提示: 可以搜索品牌名(如 "Cohiba")、风味(如 "可可" "咖啡")、产地(如 "古巴")等
+    </p>
+</div>
+
+{% if query %}
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">"{{ query }}" 的搜索结果 <span style="color: #888; font-weight: normal;">({{ results|length }} 款)</span></h2>
+    
+    {% if results %}
+    <div class="grid">
+        {% for cigar in results %}
+        <a href="/cigar/{{ cigar.id }}" class="cigar-card">
+            <div class="cigar-header">
+                <span class="cigar-brand">{{ cigar.brand }}</span>
+                {% if cigar.expert_rating %}
+                <span class="badge badge-rating">{{ cigar.expert_rating|int }}分</span>
+                {% endif %}
+            </div>
+            
+            <div class="cigar-name">{{ cigar.name }}</div>
+            
+            <div class="cigar-meta">
+                {% if cigar.origin %}
+                <span>📍 {{ cigar.origin }}</span>
+                {% endif %}
+                {% if cigar.strength %}
+                <span>💨 {{ cigar.strength }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="cigar-meta">
+                {% if cigar.price_per_stick %}
+                <span>💵 ${{ cigar.price_per_stick|int }}</span>
+                {% endif %}
+            </div>
+            
+            {% if cigar.primary_flavors %}
+            <div class="flavor-tags">
+                {% for flavor in cigar.primary_flavors.split(',')[:3] %}
+                <span class="flavor-tag">{{ flavor.strip() }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">😕</div>
+        <h3>没有找到匹配的雪茄</h3>
+        <p>尝试使用其他关键词，或查看 <a href="/cigars">全部雪茄</a></p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- 热门搜索 -->
+{% if not query %}
+<div class="card">
+    <div class="card-title">🔥 热门搜索</div>
+    
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="/search?q=古巴" class="btn btn-secondary">🇨🇺 古巴</a>
+        <a href="/search?q=尼加拉瓜" class="btn btn-secondary">🇳🇮 尼加拉瓜</a>
+        <a href="/search?q=可可" class="btn btn-secondary">🍫 可可</a>
+        <a href="/search?q=咖啡" class="btn btn-secondary">☕ 咖啡</a>
+        <a href="/search?q=Cohiba" class="btn btn-secondary">Cohiba</a>
+        <a href="/search?q=Padron" class="btn btn-secondary">Padron</a>
+        <a href="/search?q=OpusX" class="btn btn-secondary">OpusX</a>
+        <a href="/search?q=浓郁" class="btn btn-secondary">🔥 浓郁型</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

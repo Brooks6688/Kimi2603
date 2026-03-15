@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cigar.brand }} {{ cigar.name }} - 雪茄数据库{% endblock %}
+
+{% block content %}<!-- 头部信息 -->
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="color: #8B4513; font-weight: 600; margin-bottom: 0.25rem;">{{ cigar.brand }}{% if cigar.line %} · {{ cigar.line }}{% endif %}</div>
+            <h1 style="font-size: 1.75rem; margin-bottom: 0.5rem;">{{ cigar.name }}</h1>
+            
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                {% if cigar.origin %}
+                <span class="badge badge-origin">📍 {{ cigar.origin }}</span>
+                {% endif %}
+                {% if cigar.strength %}
+                <span class="badge badge-strength">💨 {{ cigar.strength }}{% if cigar.body %} (醇厚度 {{ cigar.body }}/10){% endif %}</span>
+                {% endif %}
+                {% if cigar.vitola %}
+                <span class="badge badge-price">📐 {{ cigar.vitola }}</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if cigar.expert_rating %}
+        <div class="score-display">
+            <div class="score-big">{{ cigar.expert_rating|int }}</div>
+            <div class="score-info">
+                <div style="font-size: 1.25rem;">专家评分</div>
+                <div class="score-source">{{ cigar.expert_source or 'Unknown' }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="grid">
+    <!-- 左侧：详细信息 -->
+    <div>
+        <!-- 规格参数 -->
+        <div class="card">
+            <div class="detail-title">📐 规格参数</div>
+            
+            <div class="detail-grid">
+                {% if cigar.length %}
+                <div class="detail-item">
+                    <div class="detail-label">长度</div>
+                    <div class="detail-value">{{ cigar.length }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.ring_gauge %}
+                <div class="detail-item">
+                    <div class="detail-label">环径</div>
+                    <div class="detail-value">{{ cigar.ring_gauge }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.vitola %}
+                <div class="detail-item">
+                    <div class="detail-label">形状</div>
+                    <div class="detail-value">{{ cigar.vitola }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.factory %}
+                <div class="detail-item">
+                    <div class="detail-label">工厂</div>
+                    <div class="detail-value">{{ cigar.factory }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 烟叶成分 -->
+        <div class="card">
+            <div class="detail-title">🌿 烟叶成分</div>
+            
+            <div class="detail-grid">
+                {% if cigar.wrapper %}
+                <div class="detail-item">
+                    <div class="detail-label">茄衣 (Wrapper)</div>
+                    <div class="detail-value">{{ cigar.wrapper }}{% if cigar.wrapper_origin %} ({{ cigar.wrapper_origin }}){% endif %}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.binder %}
+                <div class="detail-item">
+                    <div class="detail-label">茄套 (Binder)</div>
+                    <div class="detail-value">{{ cigar.binder }}{% if cigar.binder_origin %} ({{ cigar.binder_origin }}){% endif %}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.filler %}
+                <div class="detail-item">
+                    <div class="detail-label">茄芯 (Filler)</div>
+                    <div class="detail-value">{{ cigar.filler }}{% if cigar.filler_origin %} ({{ cigar.filler_origin }}){% endif %}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 风味档案 -->
+        {% if cigar.flavor_profile or cigar.primary_flavors %}
+        <div class="card">
+            <div class="detail-title">👅 风味档案</div>
+            
+            {% if cigar.primary_flavors or cigar.secondary_flavors %}
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.85rem; color: #888; margin-bottom: 0.5rem;">风味标签:</div>
+                <div class="flavor-tags">
+                    {% if cigar.primary_flavors %}
+                    {% for flavor in cigar.primary_flavors.split(',') %}
+                    <span class="flavor-tag" style="background: #8B4513; color: white;">{{ flavor.strip() }}</span>
+                    {% endfor %}
+                    {% endif %}
+                    {% if cigar.secondary_flavors %}
+                    {% for flavor in cigar.secondary_flavors.split(',') %}
+                    <span class="flavor-tag">{{ flavor.strip() }}</span>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if cigar.flavor_profile %}
+            <div style="line-height: 1.8;">
+                {{ cigar.flavor_profile|replace('\n', '<br>')|safe }}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- 品鉴建议 -->
+        {% if cigar.pairing_drink or cigar.best_time or cigar.smoke_duration %}
+        <div class="card">
+            <div class="detail-title">🍷 品鉴建议</div>
+            
+            <div class="detail-grid">
+                {% if cigar.pairing_drink %}
+                <div class="detail-item">
+                    <div class="detail-label">推荐搭配</div>
+                    <div class="detail-value">{{ cigar.pairing_drink }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.best_time %}
+                <div class="detail-item">
+                    <div class="detail-label">最佳时段</div>
+                    <div class="detail-value">{{ cigar.best_time }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.smoke_duration %}
+                <div class="detail-item">
+                    <div class="detail-label">预计时长</div>
+                    <div class="detail-value">{{ cigar.smoke_duration }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- 价格信息 -->
+        <div class="card">
+            <div class="detail-title">💰 价格信息</div>
+            
+            <div class="detail-grid">
+                {% if cigar.msrp %}
+                <div class="detail-item">
+                    <div class="detail-label">厂商指导价</div>
+                    <div class="detail-value">{{ cigar.msrp }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.price_per_stick %}
+                <div class="detail-item">
+                    <div class="detail-label">单支价格</div>
+                    <div class="detail-value" style="color: #4CAF50; font-size: 1.25rem;">${{ cigar.price_per_stick }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.price_per_box %}
+                <div class="detail-item">
+                    <div class="detail-label">整盒价格</div>
+                    <div class="detail-value">${{ cigar.price_per_box }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.release_year %}
+                <div class="detail-item">
+                    <div class="detail-label">发布年份</div>
+                    <div class="detail-value">{{ cigar.release_year }}</div>
+                </div>
+                {% endif %}
+                
+                {% if cigar.limited_edition %}
+                <div class="detail-item" style="background: #ffebee;">
+                    <div class="detail-label">⚠️ 限量版</div>
+                    <div class="detail-value" style="color: #c62828;">Limited Edition</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 描述 -->
+        {% if cigar.description %}
+        <div class="card">
+            <div class="detail-title">📝 详细描述</div>
+            <p style="line-height: 1.8;">{{ cigar.description }}</p>
+        </div>
+        {% endif %}
+        
+        <!-- 个人备注 -->
+        {% if cigar.personal_notes %}
+        <div class="card" style="background: #fffde7;">
+            <div class="detail-title">📌 备注</div>
+            <pre style="white-space: pre-wrap; line-height: 1.6; font-family: inherit;">{{ cigar.personal_notes }}</pre>
+        </div>
+        {% endif %}
+    </div>
+    
+    
+    <!-- 右侧：相关推荐 -->
+    <div style="max-width: 400px;">
+        {% if similar %}
+        <div class="card">
+            <div class="detail-title">🎯 相似风味</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for s in similar %}
+                <a href="/cigar/{{ s.id }}" style="text-decoration: none; color: inherit;">
+                    <div style="padding: 0.75rem; background: #f8f8f8; border-radius: 8px; transition: background 0.2s;">
+                        <div style="font-weight: 600;">{{ s.brand }} {{ s.name }}</div>
+                        <div style="font-size: 0.85rem; color: #666;">
+                            {{ s.origin or '未知产地' }}
+                            {% if s.expert_rating %} · {{ s.expert_rating|int }}分{% endif %}
+                        </div>
+                        {% if s.primary_flavors %}
+                        <div class="flavor-tags" style="margin-top: 0.5rem;">
+                            {% for f in s.primary_flavors.split(',')[:2] %}
+                            <span class="flavor-tag" style="font-size: 0.7rem;">{{ f.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if same_brand %}
+        <div class="card">
+            <div class="detail-title">🏷️ 同品牌其他雪茄</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                {% for b in same_brand %}
+                <a href="/cigar/{{ b.id }}" style="text-decoration: none; color: inherit;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f8f8f8; border-radius: 8px;">
+                        <div>
+                            <div style="font-weight: 600;">{{ b.name }}</div>
+                            {% if b.expert_rating %}
+                            <span class="badge badge-rating" style="font-size: 0.7rem;">{{ b.expert_rating|int }}分</span>
+                            {% endif %}
+                        </div>
+                        {% if b.price_per_stick %}
+                        <div style="color: #4CAF50; font-weight: 600;">${{ b.price_per_stick|int }}</div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="detail-title">🚀 快速操作</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="/cigars?origin={{ cigar.origin }}" class="btn btn-primary">📍 查看 {{ cigar.origin or '同产地' }} 雪茄</a>
+                <a href="/cigars?strength={{ cigar.strength }}" class="btn btn-secondary">💨 查看 {{ cigar.strength or '同浓度' }} 雪茄</a>
+                <a href="/recommend?type=flavor&cigar_id={{ cigar.id }}" class="btn btn-secondary">🎯 相似风味推荐</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
