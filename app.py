@@ -50,7 +50,17 @@ st.markdown("""
 @st.cache_data
 def load_data():
     """加载雪茄数据"""
-    db_path = Path(__file__).parent.parent / "cigar-db" / "cigars_v2.db"
+    # Streamlit Cloud 上，数据库文件和 app.py 在同一目录
+    db_path = Path(__file__).parent / "cigars_v2.db"
+    
+    # 调试信息
+    if not db_path.exists():
+        st.error(f"数据库文件不存在: {db_path}")
+        # 列出当前目录内容帮助调试
+        current_dir = Path(__file__).parent
+        st.error(f"当前目录 {current_dir} 内容: {list(current_dir.glob('*'))}")
+        return pd.DataFrame()
+    
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     
